@@ -4,7 +4,7 @@ Created on Sun Jan 15 12:12:58 2023
 
 @author: SiamPC
 """
-
+ 
 num1 =10
 num2=40.65
 sum=num1+num2
